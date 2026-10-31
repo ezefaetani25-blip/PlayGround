@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#0c2340" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Super Mario: Coin Climb</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='28' fill='%23ffd447' stroke='%239a5a00' stroke-width='5'/%3E%3Cpath d='M32 16v32M22 24h20' stroke='%23b36a00' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <link rel="preload" as="image" href="menu-backdrop.jpg" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="is-menu">
+  <div id="stage">
+    <canvas id="game" aria-label="Super Mario Coin Climb game"></canvas>
+    <div class="sky-glow" aria-hidden="true"></div>
+
+    <div id="hud" aria-hidden="true">
+      <div class="progress-rail"><div id="progress-fill"></div></div>
+      <div class="hud-row">
+        <div class="hud-cluster">
+          <div class="coin-chip" id="coin-chip">
+            <span class="coin-glyph" aria-hidden="true"><i></i></span>
+            <strong id="coin-count">0</strong>
+            <span class="coin-total">/ 40</span>
+          </div>
+          <div class="jump-chip" id="jump-chip">
+            <div class="jump-copy">
+              <span>JUMP</span>
+              <b id="jump-power">1.0&times;</b>
+            </div>
+            <div class="jump-rail"><i id="jump-fill"></i></div>
+          </div>
+          <div class="tilt-badge" id="tilt-badge" hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M4 9h2M18 9h2M4 15h2M18 15h2"/></svg>
+            TILT
+          </div>
+        </div>
+        <div class="hud-actions">
+          <button class="icon-btn" id="btn-fullscreen" type="button" aria-label="Toggle fullscreen">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>
+          </button>
+          <button class="icon-btn" id="btn-sound" type="button" aria-label="Toggle sound">
+            <svg class="sound-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></svg>
+            <svg class="sound-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>
+          </button>
+          <button class="icon-btn" id="btn-pause" type="button" aria-label="Pause game">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16M17 4v16"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="touch-controls" aria-hidden="true">
+      <div class="move-pad">
+        <button class="touch-btn" id="btn-left" type="button" aria-label="Move left">
+          <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M20 6 10 16l10 10"/></svg>
+        </button>
+        <button class="touch-btn" id="btn-right" type="button" aria-label="Move right">
+          <svg viewBox="0 0 32 32" aria-hidden="true"><path d="m12 6 10 10-10 10"/></svg>
+        </button>
+      </div>
+      <button class="jump-btn" id="btn-jump" type="button" aria-label="Jump">
+        <span>JUMP</span>
+        <i aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <div id="toast" role="status" aria-live="polite"></div>
+
+    <section class="screen menu-screen" id="start-screen" aria-label="Start screen">
+      <div class="menu-deco deco-left" aria-hidden="true">
+        <span class="deco-coin c1"></span>
+        <span class="deco-coin c2"></span>
+        <span class="deco-coin c3"></span>
+      </div>
+      <div class="start-panel">
+        <div class="eyebrow"><span></span> A TINY BIG-LEAP PLATFORMER <span></span></div>
+        <h1 class="logo" aria-label="Super Mario Coin Climb">
+          <span class="logo-super">SUPER</span>
+          <span class="logo-mario">MARIO</span>
+          <span class="logo-sub">COIN CLIMB</span>
+        </h1>
+        <p class="tagline">Every coin makes you jump <em>higher.</em></p>
+        <button id="play-btn" class="primary-btn" type="button" aria-label="Play game">
+          <span class="play-icon" aria-hidden="true">▶</span>
+          <span class="play-copy"><b>TAP TO PLAY</b><small>collect coins. reach the sky.</small></span>
+          <span class="btn-shine" aria-hidden="true"></span>
+        </button>
+        <div class="menu-options">
+          <button class="toggle-row" id="tilt-toggle" type="button" aria-pressed="false">
+            <span class="toggle-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M4 9h2M18 9h2M4 15h2M18 15h2"/></svg>
+            </span>
+            <span class="toggle-copy"><b>Tilt controls</b><small id="tilt-caption">optional motion steering</small></span>
+            <span class="switch" aria-hidden="true"><i></i></span>
+          </button>
+          <button class="toggle-row" id="menu-sound-toggle" type="button" aria-pressed="true">
+            <span class="toggle-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></svg>
+            </span>
+            <span class="toggle-copy"><b>Sound</b><small>chiptune adventure</small></span>
+            <span class="switch" aria-hidden="true"><i></i></span>
+          </button>
+        </div>
+        <p class="control-hint"><kbd>←</kbd><kbd>→</kbd> run <span>·</span> <kbd>SPACE</kbd> jump <span>·</span> tilt on mobile</p>
+      </div>
+      <div class="menu-footer">
+        <span class="best-pill" id="best-pill" hidden>BEST <b id="best-time">--:--</b></span>
+        <span class="made-with">40 coins · one very high jump</span>
+      </div>
+    </section>
+
+    <section class="screen pause-screen" id="pause-screen" aria-label="Pause menu" hidden>
+      <div class="modal-card">
+        <div class="modal-kicker">TAKE A BREATHER</div>
+        <h2 class="modal-title">PAUSED</h2>
+        <p class="modal-copy">The coins will wait. Your jump power is <b id="pause-power">1.0×</b>.</p>
+        <button class="primary-btn compact" id="resume-btn" type="button">
+          <span class="play-icon" aria-hidden="true">▶</span>
+          <span class="play-copy"><b>KEEP CLIMBING</b><small>back to the course</small></span>
+        </button>
+        <div class="modal-actions">
+          <button class="ghost-btn" id="restart-btn" type="button">Restart</button>
+          <button class="ghost-btn" id="pause-tilt-btn" type="button" aria-pressed="false">
+            <span class="mini-switch"><i></i></span> Tilt
+          </button>
+          <button class="ghost-btn" id="pause-sound-btn" type="button" aria-pressed="true">Sound on</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen win-screen" id="win-screen" aria-label="Course clear" hidden>
+      <div class="modal-card win-card">
+        <div class="win-rays" aria-hidden="true"></div>
+        <div class="win-coin" aria-hidden="true"><i>★</i></div>
+        <div class="modal-kicker">FLAGPOLE REACHED</div>
+        <h2 class="modal-title win-title">COURSE<br />CLEAR!</h2>
+        <p class="modal-copy">Every coin you grabbed made the next leap bigger.</p>
+        <div class="win-stats">
+          <div><span>COINS</span><b id="win-coins">0 / 40</b></div>
+          <div><span>JUMP</span><b id="win-power">1.0×</b></div>
+          <div><span>TIME</span><b id="win-time">0:00</b></div>
+        </div>
+        <button class="primary-btn compact" id="replay-btn" type="button">
+          <span class="play-icon" aria-hidden="true">↻</span>
+          <span class="play-copy"><b>PLAY AGAIN</b><small>beat your best time</small></span>
+        </button>
+        <p class="win-best" id="win-best"></p>
+      </div>
+    </section>
+
+  </div>
+
+  <script type="module" src="game.js"></script>
+</body>
+</html>
