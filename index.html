@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    <meta name="theme-color" content="#121710" />
+    <meta name="description" content="Cubehaven — a handcrafted voxel building world. Shape the wild, one cube at a time." />
+    <title>Cubehaven — A World Made of Blocks</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpolygon points='16,2 29,9 16,16 3,9' fill='%23d9b56b'/%3E%3Cpolygon points='3,9 16,16 16,30 3,23' fill='%237d8d4b'/%3E%3Cpolygon points='29,9 29,23 16,30 16,16' fill='%235f6f3b'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="scene" aria-label="Cubehaven voxel world"></canvas>
+      <div class="world-tint" aria-hidden="true"></div>
+      <div class="vignette" aria-hidden="true"></div>
+      <div class="grain" aria-hidden="true"></div>
+
+      <section id="menu" class="screen menu-screen">
+        <header class="menu-top">
+          <div class="brand">
+            <svg class="brand-cube" viewBox="0 0 32 32" aria-hidden="true">
+              <polygon points="16,2 29,9 16,16 3,9" fill="#e0bd76" />
+              <polygon points="3,9 16,16 16,30 3,23" fill="#8b9a53" />
+              <polygon points="29,9 29,23 16,30 16,16" fill="#66763f" />
+            </svg>
+            <span class="brand-word">CUBEHAVEN</span>
+            <span class="brand-version">1.0</span>
+          </div>
+          <div class="server-chip">
+            <span class="pulse-dot"></span>
+            <span>Golden Valley</span>
+            <span class="server-divider"></span>
+            <span class="server-time">Golden hour</span>
+          </div>
+        </header>
+
+        <div class="menu-body">
+          <div class="hero">
+            <div class="eyebrow"><span></span> A WORLD MADE OF BLOCKS</div>
+            <h1 class="title"><span>CUBE</span><span class="title-accent">HAVEN</span></h1>
+            <p class="tagline">Shape the wild. One cube at a time.</p>
+            <p class="lede">
+              Wander a hand-built valley, raise a cabin by the lake, or carve your own
+              skyline into the northern peaks. Every adventure starts with a single block.
+            </p>
+            <div class="menu-actions">
+              <button id="btn-play" class="btn btn-primary" type="button">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7 4.7 15 10l-8 5.3V4.7Z" fill="currentColor" /></svg>
+                <span>Play</span>
+              </button>
+              <button id="btn-settings" class="btn btn-ghost" type="button">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 6.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8Zm7.2 4.9v-3l-2-.6a5.7 5.7 0 0 0-.6-1.5l1-1.8-2.2-2.1-1.8 1a5.7 5.7 0 0 0-1.5-.6L9.5 1h-3l-.6 2a5.7 5.7 0 0 0-1.5.6l-1.8-1L.5 4.7l1 1.8a5.7 5.7 0 0 0-.6 1.5l-2 .6v3l2 .6c.1.5.3 1 .6 1.5l-1 1.8 2.2 2.1 1.8-1c.5.3 1 .5 1.5.6l.6 2h3l.6-2c.5-.1 1-.3 1.5-.6l1.8 1 2.2-2.1-1-1.8c.3-.5.5-1 .6-1.5l2-.6Z" fill="currentColor" /></svg>
+                <span>Settings</span>
+              </button>
+              <button id="btn-controls" class="btn btn-ghost" type="button">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="5" width="16" height="10" rx="2.4" fill="none" stroke="currentColor" stroke-width="1.5" /><path d="M5.5 8.5h3M7 7v3M12 8h1M14 10h1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>
+                <span>How to play</span>
+              </button>
+            </div>
+            <div class="menu-meta">
+              <span><i class="meta-dot"></i>Creative mode</span>
+              <span>Unlimited blocks</span>
+              <span>Autosaves locally</span>
+            </div>
+          </div>
+
+          <aside class="world-card">
+            <div class="card-topline"><span>YOUR WORLD</span><span class="card-badge">LIVE</span></div>
+            <h2>Golden Valley</h2>
+            <p>A quiet lake beneath the northern peaks. The light stays low, the water stays glassy, and the horizon is all yours.</p>
+            <div class="world-stats">
+              <div><strong id="menu-blocks">—</strong><span>blocks placed</span></div>
+              <div><strong>64</strong><span>chunks</span></div>
+              <div><strong>∞</strong><span>materials</span></div>
+            </div>
+            <div class="seed-row"><span>SEED</span><code>817243</code><span class="seed-hint">deterministic</span></div>
+            <div class="card-rule"></div>
+            <div class="card-tip">
+              <span class="tip-icon">✦</span>
+              <span>Tip: press <kbd>F</kbd> to fly and reach the mountain ridge.</span>
+            </div>
+          </aside>
+        </div>
+
+        <footer class="menu-footer">
+          <div class="footer-hint"><span class="key-cluster"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span> move</div>
+          <div class="footer-hint"><span class="mouse-icon"></span> look</div>
+          <div class="footer-hint"><kbd>LMB</kbd> break <span class="hint-sep"></span> <kbd>RMB</kbd> place</div>
+          <div class="footer-credit">HANDCRAFTED IN THREE.JS</div>
+        </footer>
+      </section>
+
+      <section id="hud" class="hud is-hidden" aria-label="Game heads-up display">
+        <div class="hud-top">
+          <div class="hud-location">
+            <div class="hud-compass" aria-hidden="true"><span>N</span><i></i></div>
+            <div>
+              <div class="hud-zone">GOLDEN VALLEY</div>
+              <div class="hud-mode"><span class="mode-dot"></span> CREATIVE · <span id="hud-time">GOLDEN HOUR</span></div>
+            </div>
+          </div>
+          <div class="hud-stats">
+            <div class="stat"><span class="stat-label">FPS</span><strong id="hud-fps">60</strong></div>
+            <div class="stat"><span class="stat-label">XYZ</span><strong id="hud-coords">0 / 0 / 0</strong></div>
+            <div class="stat"><span class="stat-label">CHUNK</span><strong id="hud-chunk">0 / 0</strong></div>
+          </div>
+          <button id="btn-pause" class="hud-pause" type="button" aria-label="Pause game">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="5.5" y="4.5" width="3" height="11" rx="1" fill="currentColor" /><rect x="11.5" y="4.5" width="3" height="11" rx="1" fill="currentColor" /></svg>
+          </button>
+        </div>
+
+        <div class="crosshair" aria-hidden="true">
+          <span class="crosshair-dot"></span>
+          <span class="crosshair-ring"></span>
+        </div>
+
+        <div id="target-label" class="target-label is-hidden">Grass Block</div>
+        <div id="block-label" class="block-label">Grass Block</div>
+
+        <div id="hotbar" class="hotbar" role="toolbar" aria-label="Block palette"></div>
+
+        <div id="hint-strip" class="hint-strip">
+          <span><kbd>WASD</kbd> move</span>
+          <span><kbd>SPACE</kbd> jump</span>
+          <span><kbd>F</kbd> fly</span>
+          <span><kbd>LMB</kbd> break</span>
+          <span><kbd>RMB</kbd> place</span>
+          <span><kbd>ESC</kbd> pause</span>
+        </div>
+
+        <div class="mobile-controls" id="mobile-controls" aria-hidden="true">
+          <div id="joystick" class="joystick"><div class="joystick-ring"></div><div id="joystick-knob" class="joystick-knob"></div></div>
+          <div class="mobile-actions">
+            <button id="btn-mobile-fly" class="touch-btn touch-btn-small" type="button" aria-label="Toggle flight">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h6l2-5 2 10 2-7 2 2h4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            </button>
+            <button id="btn-mobile-break" class="touch-btn touch-btn-break" type="button" aria-label="Break block">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 19 8-8m0 0 4-6 4 4-6 4m-2-2-2 2m-4 4 3 1m3-7 1 3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            </button>
+            <button id="btn-mobile-place" class="touch-btn touch-btn-place" type="button" aria-label="Place block">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Zm0 0v9m8-4.5L12 12 4 7.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" /></svg>
+            </button>
+            <button id="btn-mobile-jump" class="touch-btn touch-btn-jump" type="button" aria-label="Jump">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 14 6-6 6 6M12 8v11" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section id="pause" class="screen overlay pause-screen is-hidden" aria-label="Pause menu">
+        <div class="modal pause-modal">
+          <div class="modal-kicker">GAME PAUSED</div>
+          <h2>Take a breath.</h2>
+          <p class="modal-sub">The valley will wait. Your build is safe.</p>
+          <div class="pause-actions">
+            <button id="btn-resume" class="btn btn-primary" type="button">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7 4.7 15 10l-8 5.3V4.7Z" fill="currentColor" /></svg>
+              <span>Resume</span>
+            </button>
+            <button id="btn-pause-settings" class="btn btn-ghost" type="button">Settings</button>
+            <button id="btn-save" class="btn btn-ghost" type="button">Save world</button>
+            <button id="btn-title" class="btn btn-quiet" type="button">Return to title</button>
+          </div>
+          <div class="pause-foot">
+            <div><span>SEED</span><code>817243</code></div>
+            <div><span>POSITION</span><code id="pause-coords">0 / 0 / 0</code></div>
+            <div><span>EDITS</span><code id="pause-edits">0</code></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="settings" class="screen overlay settings-screen is-hidden" aria-label="Settings">
+        <div class="modal settings-modal">
+          <header class="settings-head">
+            <div>
+              <div class="modal-kicker">OPTIONS</div>
+              <h2>Settings</h2>
+            </div>
+            <button id="btn-settings-close" class="icon-btn" type="button" aria-label="Close settings">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" /></svg>
+            </button>
+          </header>
+          <div class="settings-scroll">
+            <section class="setting-group">
+              <div class="group-title"><span>DISPLAY</span><i></i></div>
+              <div class="setting-row">
+                <div class="setting-copy"><label for="set-render">Render distance</label><span>How far the valley reaches.</span></div>
+                <div class="setting-control">
+                  <input id="set-render" type="range" min="3" max="8" step="1" value="8" />
+                  <output id="out-render">8 chunks</output>
+                </div>
+              </div>
+              <div class="setting-row">
+                <div class="setting-copy"><label for="set-fov">Field of view</label><span>Widen your horizon.</span></div>
+                <div class="setting-control">
+                  <input id="set-fov" type="range" min="60" max="105" step="1" value="78" />
+                  <output id="out-fov">78°</output>
+                </div>
+              </div>
+              <div class="setting-row">
+                <div class="setting-copy"><label for="set-quality">Quality preset</label><span>Resolution and shadow detail.</span></div>
+                <div class="setting-control">
+                  <select id="set-quality">
+                    <option value="high">High</option>
+                    <option value="balanced">Balanced</option>
+                    <option value="low">Performance</option>
+                  </select>
+                </div>
+              </div>
+              <div class="setting-row">
+                <div class="setting-copy"><label for="set-shadows">Sun shadows</label><span>Long golden-hour shadows.</span></div>
+                <button id="set-shadows" class="switch is-on" type="button" role="switch" aria-checked="true"><span></span></button>
+              </div>
+              <div class="setting-row">
+                <div class="setting-copy"><label for="set-hud">Show HUD</label><span>Coordinates, FPS and palette.</span></div>
+                <button id="set-hud" class="switch is-on" type="button" role="switch" aria-checked="true"><span></span></button>
+              </div>
+            </section>
+
+            <section class="setting-group">
+              <div class="group-title"><span>CONTROLS</span><i></i></div>
+              <div class="setting-row">
+                <div class="setting-copy"><label for="set-sensitivity">Mouse sensitivity</label><span>How quickly the camera turns.</span></div>
+                <div class="setting-control">
+                  <input id="set-sensitivity" type="range" min="0.4" max="2.4" step="0.1" value="1" />
+                  <output id="out-sensitivity">1.0×</output>
+                </div>
+              </div>
+              <div class="setting-row">
+                <div class="setting-copy"><label for="set-invert">Invert vertical look</label><span>For the seasoned pilots.</span></div>
+                <button id="set-invert" class="switch" type="button" role="switch" aria-checked="false"><span></span></button>
+              </div>
+              <div class="setting-row">
+                <div class="setting-copy"><label for="set-bob">Camera bob</label><span>A little weight in every step.</span></div>
+                <button id="set-bob" class="switch is-on" type="button" role="switch" aria-checked="true"><span></span></button>
+              </div>
+            </section>
+
+            <section class="setting-group">
+              <div class="group-title"><span>AUDIO</span><i></i></div>
+              <div class="setting-row">
+                <div class="setting-copy"><label for="set-volume">Master volume</label><span>Blocks, footsteps and wind.</span></div>
+                <div class="setting-control">
+                  <input id="set-volume" type="range" min="0" max="100" step="1" value="70" />
+                  <output id="out-volume">70%</output>
+                </div>
+              </div>
+              <div class="setting-row">
+                <div class="setting-copy"><label for="set-ambient">Valley ambience</label><span>Wind, water and distant birds.</span></div>
+                <button id="set-ambient" class="switch is-on" type="button" role="switch" aria-checked="true"><span></span></button>
+              </div>
+            </section>
+          </div>
+          <footer class="settings-foot">
+            <button id="btn-reset-settings" class="text-btn" type="button">Reset to defaults</button>
+            <button id="btn-settings-done" class="btn btn-primary btn-compact" type="button">Done</button>
+          </footer>
+        </div>
+      </section>
+
+      <section id="controls" class="screen overlay controls-screen is-hidden" aria-label="How to play">
+        <div class="modal controls-modal">
+          <header class="settings-head">
+            <div>
+              <div class="modal-kicker">FIELD GUIDE</div>
+              <h2>How to play</h2>
+            </div>
+            <button id="btn-controls-close" class="icon-btn" type="button" aria-label="Close guide">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" /></svg>
+            </button>
+          </header>
+          <div class="guide-grid">
+            <article class="guide-card">
+              <div class="guide-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h6l2-5 2 10 2-7 2 2h2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              </div>
+              <h3>Move</h3>
+              <p>Walk the valley with <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>. Hold <kbd>SHIFT</kbd> to sprint and <kbd>SPACE</kbd> to jump.</p>
+            </article>
+            <article class="guide-card">
+              <div class="guide-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Zm0 0v9m8-4.5L12 12 4 7.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" /></svg>
+              </div>
+              <h3>Build</h3>
+              <p>Aim at a surface with the crosshair. <kbd>LMB</kbd> breaks a block. <kbd>RMB</kbd> places the block in your hotbar.</p>
+            </article>
+            <article class="guide-card">
+              <div class="guide-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /><circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="1.3" /></svg>
+              </div>
+              <h3>Choose</h3>
+              <p>Pick a material with <kbd>1</kbd>–<kbd>9</kbd> or the scroll wheel. The selected block is shown above the palette.</p>
+            </article>
+            <article class="guide-card">
+              <div class="guide-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17.5 12 4l8 13.5M8 12h8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              </div>
+              <h3>Fly</h3>
+              <p>Press <kbd>F</kbd> to take to the sky. <kbd>SPACE</kbd> rises, <kbd>SHIFT</kbd> descends, and <kbd>F</kbd> lands you again.</p>
+            </article>
+          </div>
+          <div class="guide-note">
+            <span class="guide-note-mark">✦</span>
+            <p>Everything you build is saved in this browser automatically. Use <kbd>ESC</kbd> to pause at any time.</p>
+          </div>
+          <footer class="settings-foot">
+            <span class="guide-foot-hint">Tip: the lake shore is a good place to start.</span>
+            <button id="btn-controls-done" class="btn btn-primary btn-compact" type="button">Let's build</button>
+          </footer>
+        </div>
+      </section>
+
+      <div id="toast" class="toast" role="status" aria-live="polite">
+        <span class="toast-icon">✦</span>
+        <span id="toast-text">World saved</span>
+      </div>
+      <div id="flash" class="flash" aria-hidden="true"></div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
