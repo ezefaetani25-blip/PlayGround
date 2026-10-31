@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b120d" />
+    <meta name="description" content="CubeHaven — a beautiful cube-only voxel world. Mine, build, and explore an island made entirely of cubes." />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%238ede65' d='M32 4 58 18 32 32 6 18z'/%3E%3Cpath fill='%2369b84e' d='M6 18v28l26 14V32z'/%3E%3Cpath fill='%234a8f39' d='M58 18v28L32 60V32z'/%3E%3C/svg%3E" />
+    <title>CubeHaven — Build a world of cubes</title>
+    <script type="module" crossorigin src="./assets/index-DeX__0jS.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-CTsIocPD.css">
+  </head>
+  <body class="in-menu">
+    <div id="app">
+      <canvas id="game" aria-label="CubeHaven game world"></canvas>
+      <div id="water-overlay" aria-hidden="true"></div>
+      <div id="vignette" aria-hidden="true"></div>
+
+      <!-- ================= HUD ================= -->
+      <div id="hud" aria-hidden="true">
+        <div class="hud-chip hud-status">
+          <span class="status-dot"></span>
+          <span id="hud-clock">08:30</span>
+          <span class="hud-sep">·</span>
+          <span id="hud-day">Day 1</span>
+          <span id="hud-flying" class="hud-badge">Flying</span>
+        </div>
+        <div class="hud-chip hud-perf">
+          <span id="hud-fps">60 fps</span>
+          <span class="hud-sep">·</span>
+          <span id="hud-coords">0, 0, 0</span>
+        </div>
+
+        <div id="crosshair" aria-hidden="true"><span></span><span></span></div>
+
+        <div id="block-label" class="block-label"></div>
+
+        <div id="hotbar" class="hotbar" role="toolbar" aria-label="Block hotbar"></div>
+
+        <div class="hud-hint" id="hud-hint">
+          <span class="hint-desktop">WASD move · Space jump · LMB mine · RMB place · E blocks · F fly · Esc menu</span>
+          <span class="hint-touch">Drag to look · Joystick to move · Buttons to mine and build</span>
+        </div>
+
+        <button id="btn-pause" class="icon-btn hud-pause" title="Pause" aria-label="Pause">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+        </button>
+        <button id="btn-inventory" class="icon-btn hud-inventory" title="Block library (E)" aria-label="Block library">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 21 7v10l-9 5-9-5V7z" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M3 7l9 5 9-5M12 12v10" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>
+        </button>
+
+        <!-- touch controls -->
+        <div id="joystick" aria-hidden="true"><div class="joystick-ring"></div><div class="joystick-knob"></div></div>
+        <div id="touch-actions">
+          <button class="touch-btn" id="btn-break" aria-label="Mine block">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20 15 9M13 4l7 7M9 8l7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M14 3c2-2 5-1 7 1s2 5 0 7l-3-3-4-1z" fill="currentColor"/></svg>
+            <span>Mine</span>
+          </button>
+          <button class="touch-btn" id="btn-place" aria-label="Place block">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 20 7.5v9L12 21 4 16.5v-9z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4 7.5 12 12l8-4.5M12 12v9" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+            <span>Build</span>
+          </button>
+          <button class="touch-btn" id="btn-jump" aria-label="Jump">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>Jump</span>
+          </button>
+          <button class="touch-btn" id="btn-fly" aria-label="Toggle flying">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 14 21 6l-4 12-5-4-3 4-1-5z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+            <span>Fly</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ================= MAIN MENU ================= -->
+      <section id="screen-menu" class="screen menu-screen is-open" aria-label="Main menu">
+        <div class="menu-shade"></div>
+        <header class="menu-top">
+          <div class="brand-small">
+            <span class="brand-cube" aria-hidden="true"></span>
+            <span>CUBEHAVEN</span>
+          </div>
+          <span class="menu-version">v1.0</span>
+        </header>
+
+        <main class="menu-main">
+          <div class="logo-block">
+            <img id="logo-icon" class="logo-icon" alt="" width="84" height="84" />
+            <div class="logo-glow" aria-hidden="true"></div>
+          </div>
+          <p class="eyebrow">A world made of cubes</p>
+          <h1 class="logo">CUBE<span>HAVEN</span></h1>
+          <p class="tagline">Mine, craft and build on a living island.<br />Every mountain, tree and cloud is a cube.</p>
+
+          <div class="menu-actions">
+            <button id="btn-play" class="btn btn-primary btn-play">
+              <span id="play-label">Play world</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
+            </button>
+            <div class="menu-row">
+              <button id="btn-new" class="btn">New world</button>
+              <button id="btn-settings" class="btn">Settings</button>
+            </div>
+            <button id="btn-help" class="btn btn-ghost">How to play</button>
+          </div>
+
+          <div class="menu-meta">
+            <span id="menu-seed">Seed · 000000</span>
+            <span class="meta-dot"></span>
+            <span id="menu-save-info">Fresh island</span>
+          </div>
+        </main>
+
+        <footer class="menu-foot">
+          <span class="foot-note">Every block is a cube · Every cube is yours</span>
+          <span class="foot-note foot-device" id="menu-device">Desktop</span>
+        </footer>
+      </section>
+
+      <!-- ================= PAUSE ================= -->
+      <section id="screen-pause" class="screen" aria-label="Paused">
+        <div class="screen-scrim"></div>
+        <div class="pause-card">
+          <p class="eyebrow">Take a breath</p>
+          <h2 class="screen-title">Paused</h2>
+          <p class="screen-sub" id="pause-sub">Your island is waiting.</p>
+          <div class="pause-actions">
+            <button id="btn-resume" class="btn btn-primary">Resume</button>
+            <button id="btn-pause-settings" class="btn">Settings</button>
+            <button id="btn-save" class="btn">Save world</button>
+            <button id="btn-pause-new" class="btn">New world</button>
+            <button id="btn-menu" class="btn btn-ghost">Main menu</button>
+          </div>
+          <div class="pause-foot">
+            <span id="pause-seed">Seed 000000</span>
+            <span class="meta-dot"></span>
+            <span id="pause-blocks">0 blocks changed</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SETTINGS ================= -->
+      <section id="screen-settings" class="screen" aria-label="Settings">
+        <div class="screen-scrim"></div>
+        <div class="panel settings-panel">
+          <header class="panel-head">
+            <div>
+              <p class="eyebrow">Make it yours</p>
+              <h2 class="screen-title">Settings</h2>
+            </div>
+            <button class="icon-btn panel-close" id="btn-settings-close" aria-label="Close settings">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+          </header>
+
+          <div class="settings-layout">
+            <nav class="settings-tabs" role="tablist" aria-label="Settings sections">
+              <button class="tab is-active" data-tab="graphics" role="tab">Graphics</button>
+              <button class="tab" data-tab="controls" role="tab">Controls</button>
+              <button class="tab" data-tab="audio" role="tab">Audio</button>
+              <button class="tab" data-tab="game" role="tab">Game</button>
+            </nav>
+
+            <div class="settings-body">
+              <section class="settings-tab is-active" data-panel="graphics">
+                <div class="setting">
+                  <div class="setting-copy"><label>Quality preset</label><p>Balances detail, shadows and battery life.</p></div>
+                  <div class="seg" id="quality-seg">
+                    <button data-quality="low">Low</button>
+                    <button data-quality="balanced">Balanced</button>
+                    <button data-quality="high">High</button>
+                    <button data-quality="ultra">Ultra</button>
+                  </div>
+                </div>
+                <div class="setting">
+                  <div class="setting-copy"><label for="set-shadows">Sun shadows</label><p>Soft, moving shadows from the sun and moon.</p></div>
+                  <label class="switch"><input id="set-shadows" type="checkbox" data-setting="graphics.shadows" /><span></span></label>
+                </div>
+                <div class="setting">
+                  <div class="setting-copy"><label for="set-bloom">Soft glow</label><p>Warm bloom around the sun, lamps and stars.</p></div>
+                  <label class="switch"><input id="set-bloom" type="checkbox" data-setting="graphics.bloom" /><span></span></label>
+                </div>
+                <div class="setting">
+                  <div class="setting-copy"><label for="set-clouds">Blocky clouds</label><p>Slow, chunky clouds drifting overhead.</p></div>
+                  <label class="switch"><input id="set-clouds" type="checkbox" data-setting="graphics.clouds" /><span></span></label>
+                </div>
+                <div class="setting">
+                  <div class="setting-copy"><label for="set-stars">Night stars</label><p>A sky full of tiny cube stars after dusk.</p></div>
+                  <label class="switch"><input id="set-stars" type="checkbox" data-setting="graphics.stars" /><span></span></label>
+                </div>
+                <div class="setting">
+                  <div class="setting-copy"><label for="set-fov">Field of view</label><p>How much of the island fits on screen.</p></div>
+                  <div class="range-wrap"><input id="set-fov" type="range" min="60" max="110" step="1" data-setting="graphics.fov" data-format="deg" /><output></output></div>
+                </div>
+                <div class="setting">
+                  <div class="setting-copy"><label for="set-resolution">Render resolution</label><p>Lower it for smoother play on older devices.</p></div>
+                  <div class="range-wrap"><input id="set-resolution" type="range" min="0.5" max="2" step="0.25" data-setting="graphics.resolution" data-format="scale" /><output></output></div>
+                </div>
+                <div class="setting">
+                  <div class="setting-copy"><label for="set-brightness">Brightness</label><p>Exposure of the whole world.</p></div>
+                  <div class="range-wrap"><input id="set-brightness" type="range" min="0.6" max="1.4" step="0.05" data-setting="graphics.brightness" data-format="pct" /><output></output></div>
+                </div>
+                <div class="setting">
+                  <div class="setting-copy"><label for="set-bobbing">View bobbing</label><p>A gentle head-bob while walking.</p></div>
+                  <label class="switch"><input id="set-bobbing" type="checkbox" data-setting="graphics.bobbing" /><span></span></label>
+                </div>
+              </section>
+
+              <section class="settings-tab" data-panel="controls">
+                <div class="setting">
+                  <div class="setting-copy"><label for="set-sensitivity">Look sensitivity</label><p>Mouse and touch look speed.</p></div>
+                  <div class="range-wrap"><input id="set-sensitivity" type="range" min="0.2" max="2.5" step="0.1" data-setting="controls.sensitivity" data-format="mult" /><output></output></div>
+                </div>
+                <div class="setting">
+                  <div class="setting-copy"><label for="set-invert">Invert look Y</label><p>Push up to look down.</p></div>
+                  <label class="switch"><input id="set-invert" type="checkbox" data-setting="controls.invertY" /><span></span></label>
+                </div>
+                <div class="setting">
+                  <div class="setting-copy"><label>Sprint</label><p>Hold Shift, or toggle it on and off.</p></div>
+                  <div class="seg" data-setting="controls.sprint" data-seg>
+                    <button data-value="hold">Hold</button>
+                    <button data-value="toggle">Toggle</button>
+                  </div>
+                </div>
+                <div class="setting">
+                  <div class="setting-copy"><label>Touch controls</label><p>Auto shows them on phones and small screens.</p></div>
+                  <div class="seg" data-setting="controls.touch" data-seg>
+                    <button data-value="auto">Auto</button>
+                    <button data-value="on">On</button>
+                    <button data-value="off">Off</button>
+                  </div>
+                </div>
+                <div class="setting">
+                  <div class="setting-copy"><label for="set-lefthanded">Left-handed layout</label><p>Moves the joystick and action buttons to the other side.</p></div>
+                  <label class="switch"><input id="set-lefthanded" type="checkbox" data-setting="controls.leftHanded" /><span></span></label>
+                </div>
+              </section>
+
+              <section class="settings-tab" data-panel="audio">
+                <div class="setting">
+                  <div class="setting-copy"><label for="set-master">Master volume</label><p>Everything, all at once.</p></div>
+                  <div class="range-wrap"><input id="set-master" type="range" min="0" max="1" step="0.05" data-setting="audio.master" data-format="pct" /><output></output></div>
+                </div>
+                <div class="setting">
+                  <div class="setting-copy"><label for="set-sfx">Effects</label><p>Mining, building, footsteps and UI clicks.</p></div>
+                  <div class="range-wrap"><input id="set-sfx" type="range" min="0" max="1" step="0.05" data-setting="audio.sfx" data-format="pct" /><output></output></div>
+                </div>
+                <div class="setting">
+                  <div class="setting-copy"><label for="set-ambient">Ambience</label><p>Wind, birds and the night chorus.</p></div>
+                  <div class="range-wrap"><input id="set-ambient" type="range" min="0" max="1" step="0.05" data-setting="audio.ambient" data-format="pct" /><output></output></div>
+                </div>
+              </section>
+
+              <section class="settings-tab" data-panel="game">
+                <div class="setting">
+                  <div class="setting-copy"><label for="set-daycycle">Day / night cycle</label><p>The sun sets, the stars come out, the sun returns.</p></div>
+                  <label class="switch"><input id="set-daycycle" type="checkbox" data-setting="game.dayCycle" /><span></span></label>
+                </div>
+                <div class="setting">
+                  <div class="setting-copy"><label for="set-daylength">Day length</label><p>Minutes for one full day and night.</p></div>
+                  <div class="range-wrap"><input id="set-daylength" type="range" min="2" max="24" step="1" data-setting="game.dayLength" data-format="min" /><output></output></div>
+                </div>
+                <div class="setting">
+                  <div class="setting-copy"><label for="set-fps">Show FPS</label><p>Frames per second in the top bar.</p></div>
+                  <label class="switch"><input id="set-fps" type="checkbox" data-setting="game.showFps" /><span></span></label>
+                </div>
+                <div class="setting">
+                  <div class="setting-copy"><label for="set-coords">Show coordinates</label><p>Your position in the cube grid.</p></div>
+                  <label class="switch"><input id="set-coords" type="checkbox" data-setting="game.showCoords" /><span></span></label>
+                </div>
+                <div class="setting">
+                  <div class="setting-copy"><label for="set-autosave">Autosave</label><p>Saves quietly every 30 seconds while you play.</p></div>
+                  <label class="switch"><input id="set-autosave" type="checkbox" data-setting="game.autosave" /><span></span></label>
+                </div>
+              </section>
+            </div>
+          </div>
+
+          <footer class="panel-foot">
+            <button class="btn btn-ghost btn-small" id="btn-reset-settings">Reset defaults</button>
+            <button class="btn btn-primary btn-small" id="btn-settings-done">Done</button>
+          </footer>
+        </div>
+      </section>
+
+      <!-- ================= HELP ================= -->
+      <section id="screen-help" class="screen" aria-label="How to play">
+        <div class="screen-scrim"></div>
+        <div class="panel help-panel">
+          <header class="panel-head">
+            <div>
+              <p class="eyebrow">The first five minutes</p>
+              <h2 class="screen-title">How to play</h2>
+            </div>
+            <button class="icon-btn panel-close" id="btn-help-close" aria-label="Close help">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+          </header>
+          <div class="help-body">
+            <article class="help-card">
+              <h3><span class="keycap">⌨</span> Desktop</h3>
+              <ul>
+                <li><span>Move</span><b>W A S D</b></li>
+                <li><span>Jump / swim up</span><b>Space</b></li>
+                <li><span>Sprint</span><b>Shift</b></li>
+                <li><span>Mine block</span><b>Left click</b></li>
+                <li><span>Place block</span><b>Right click</b></li>
+                <li><span>Pick block</span><b>Middle click</b></li>
+                <li><span>Block library</span><b>E</b></li>
+                <li><span>Fly</span><b>F</b></li>
+                <li><span>Pause</span><b>Esc</b></li>
+              </ul>
+            </article>
+            <article class="help-card">
+              <h3><span class="keycap">✋</span> Touch</h3>
+              <ul>
+                <li><span>Look around</span><b>Drag the world</b></li>
+                <li><span>Move</span><b>Left joystick</b></li>
+                <li><span>Mine</span><b>Mine button</b></li>
+                <li><span>Build</span><b>Build button</b></li>
+                <li><span>Jump</span><b>Jump button</b></li>
+                <li><span>Fly</span><b>Fly button</b></li>
+                <li><span>Change block</span><b>Tap the hotbar</b></li>
+                <li><span>All blocks</span><b>Cube button</b></li>
+                <li><span>Pause</span><b>Top-right button</b></li>
+              </ul>
+            </article>
+            <article class="help-card help-wide">
+              <h3><span class="keycap">✦</span> Build without limits</h3>
+              <p>You have every block from the start. The hotbar holds nine favourites — open the block library to swap any of them. Your island saves itself as you build, and the seed box in “New world” grows a completely different island.</p>
+            </article>
+          </div>
+          <footer class="panel-foot">
+            <span class="foot-note">Tip: middle-click a block to copy it straight into your hotbar.</span>
+            <button class="btn btn-primary btn-small" id="btn-help-done">Got it</button>
+          </footer>
+        </div>
+      </section>
+
+      <!-- ================= NEW WORLD ================= -->
+      <section id="screen-newworld" class="screen" aria-label="New world">
+        <div class="screen-scrim"></div>
+        <div class="panel newworld-panel">
+          <header class="panel-head">
+            <div>
+              <p class="eyebrow">A fresh horizon</p>
+              <h2 class="screen-title">New world</h2>
+            </div>
+            <button class="icon-btn panel-close" id="btn-new-close" aria-label="Close new world">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+          </header>
+          <div class="newworld-body">
+            <p class="screen-sub">Every seed grows a different island: new hills, beaches, forests and mountain peaks. Your current world will be replaced.</p>
+            <label class="field-label" for="seed-input">Island seed</label>
+            <div class="seed-row">
+              <input id="seed-input" class="text-input" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="Leave empty for a surprise" maxlength="32" />
+              <button id="btn-random-seed" class="btn btn-small" title="Random seed">Randomize</button>
+            </div>
+            <div class="seed-chips">
+              <button class="chip" data-seed="1337">1337</button>
+              <button class="chip" data-seed="sunrise">sunrise</button>
+              <button class="chip" data-seed="cubecove">cubecove</button>
+              <button class="chip" data-seed="42">42</button>
+            </div>
+            <p class="field-hint">Tip: share a seed with a friend to explore the same island.</p>
+          </div>
+          <footer class="panel-foot">
+            <button class="btn btn-ghost btn-small" id="btn-new-cancel">Cancel</button>
+            <button class="btn btn-primary btn-small" id="btn-new-create">Create island</button>
+          </footer>
+        </div>
+      </section>
+
+      <!-- ================= BLOCK LIBRARY ================= -->
+      <section id="screen-inventory" class="screen" aria-label="Block library">
+        <div class="screen-scrim"></div>
+        <div class="panel inventory-panel">
+          <header class="panel-head">
+            <div>
+              <p class="eyebrow">Creative inventory</p>
+              <h2 class="screen-title">Block library</h2>
+            </div>
+            <button class="icon-btn panel-close" id="btn-inventory-close" aria-label="Close block library">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+          </header>
+          <div class="inventory-body">
+            <p class="screen-sub" id="inventory-sub">Choose a block to put in the selected hotbar slot.</p>
+            <div id="inventory-grid" class="inventory-grid"></div>
+          </div>
+          <footer class="panel-foot">
+            <span class="foot-note" id="inventory-hint">Tap a block to equip it</span>
+            <button class="btn btn-primary btn-small" id="btn-inventory-done">Done</button>
+          </footer>
+        </div>
+      </section>
+
+      <!-- ================= LOADING ================= -->
+      <section id="screen-loading" class="screen loading-screen is-open" aria-label="Loading">
+        <div class="loading-inner">
+          <img id="loading-icon" class="loading-icon" alt="" width="96" height="96" />
+          <h1 class="logo loading-logo">CUBE<span>HAVEN</span></h1>
+          <p class="loading-tip" id="loading-tip">Shaping the island…</p>
+          <div class="progress"><div class="progress-bar" id="loading-bar"></div></div>
+          <span class="loading-pct" id="loading-pct">0%</span>
+        </div>
+      </section>
+
+      <div id="toast-stack" aria-live="polite"></div>
+      <div id="fade" aria-hidden="true"></div>
+    </div>
+  </body>
+</html>
