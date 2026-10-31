@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+  <meta name="theme-color" content="#171128" />
+  <meta name="description" content="Lucid Grove — a short, dreamlike forest walk. Gather six lost memories before the dream ends." />
+  <title>Lucid Grove — a dream you can walk through</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9C%A6%3C/text%3E%3C/svg%3E" />
+</head>
+<body>
+  <div id="stage">
+    <canvas id="scene" aria-label="A dreamlike forest. Walk with WASD, look with the mouse."></canvas>
+    <div class="fx grain" aria-hidden="true"></div>
+    <div class="fx scanlines" aria-hidden="true"></div>
+    <div class="fx vignette" aria-hidden="true"></div>
+    <div class="fx dawn" aria-hidden="true"></div>
+
+    <div id="loader" class="loader">
+      <div class="loader-spark">✦</div>
+      <p>entering the grove</p>
+      <span class="loader-bar"><i></i></span>
+    </div>
+
+    <!-- TITLE -->
+    <section id="title" class="screen title-screen" aria-labelledby="game-title">
+      <div class="title-veil" aria-hidden="true"></div>
+      <div class="title-inner">
+        <p class="eyebrow reveal r1">a walking dream</p>
+        <h1 id="game-title" class="reveal r2">Lucid <em>Grove</em></h1>
+        <div class="rule reveal r3" aria-hidden="true"><span>✦</span></div>
+        <p class="tagline reveal r4">
+          A forest made of the things you almost remembered.<br />
+          Gather six memories before you wake.
+        </p>
+        <button id="enter" class="cta reveal r5" type="button">
+          <span>step inside</span>
+        </button>
+        <p class="meta reveal r6">headphones recommended &nbsp;·&nbsp; six memories &nbsp;·&nbsp; 5–10 min</p>
+      </div>
+      <div class="title-foot reveal r6">
+        <span class="foot-left foot-desktop">WASD / drag to look</span>
+        <span class="foot-left foot-touch">left thumb to walk / drag to look</span>
+        <span class="foot-right">sound on ✦</span>
+      </div>
+    </section>
+
+    <!-- HUD -->
+    <header id="hud" class="hud hidden" aria-hidden="true">
+      <div class="hud-left">
+        <p class="brand">Lucid Grove</p>
+        <div class="mem-line">
+          <span class="mem-label">memories</span>
+          <span id="mem-count" class="mem-count">0</span>
+          <span class="mem-total">/ 6</span>
+        </div>
+        <div id="pips" class="pips" aria-hidden="true"></div>
+      </div>
+      <div class="hud-right">
+        <button id="pause-btn" class="icon-btn pause-btn" type="button" aria-label="Pause" title="Pause">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5.5v13M15 5.5v13"/></svg>
+        </button>
+        <button id="sound" class="icon-btn" type="button" aria-label="Mute sound" title="Sound">
+          <svg class="i-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.2L12 5.6v12.8L7.2 14.5H4z"/><path d="M15.4 8.6a4.8 4.8 0 0 1 0 6.8"/><path d="M17.9 6.1a8.4 8.4 0 0 1 0 11.8"/></svg>
+          <svg class="i-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.2L12 5.6v12.8L7.2 14.5H4z"/><path d="m16.2 9.4 4.4 5.2M20.6 9.4l-4.4 5.2"/></svg>
+        </button>
+        <button id="fullscreen" class="icon-btn" type="button" aria-label="Toggle fullscreen" title="Fullscreen">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div id="toast" class="toast" role="status"></div>
+    <div id="hint" class="hint" role="status"></div>
+    <div id="poem" class="poem" role="status">
+      <span class="poem-kicker">a memory returns</span>
+      <p id="poem-text"></p>
+    </div>
+
+    <div id="prompt" class="prompt" aria-hidden="true">
+      <kbd>E</kbd><span>remember</span>
+    </div>
+
+    <!-- TOUCH CONTROLS -->
+    <div id="touch-ui" class="touch-ui hidden" aria-hidden="true">
+      <div id="stick" class="stick">
+        <span class="stick-ring"></span>
+        <div id="knob" class="knob"></div>
+      </div>
+      <button id="act" class="act" type="button" aria-label="Remember this memory">✦</button>
+    </div>
+
+    <!-- PAUSE -->
+    <section id="pause" class="screen soft-screen hidden" aria-labelledby="pause-title">
+      <div class="soft-inner">
+        <p class="eyebrow">a held breath</p>
+        <h2 id="pause-title">the grove <em>waits.</em></h2>
+        <p class="soft-copy">The fireflies will keep your place.</p>
+        <button id="resume" class="cta small" type="button"><span>resume</span></button>
+        <p class="meta">press <kbd>esc</kbd> to pause · <kbd>M</kbd> sound</p>
+      </div>
+    </section>
+
+    <!-- ENDING -->
+    <section id="ending" class="screen end-screen hidden" aria-labelledby="end-title">
+      <div class="end-inner">
+        <p class="eyebrow">the dream lets go</p>
+        <h2 id="end-title">you <em>woke up.</em></h2>
+        <div class="end-rule" aria-hidden="true"></div>
+        <p class="end-copy">
+          The grove is still there — somewhere between one heartbeat and the next.
+          It always will be.
+        </p>
+        <p class="end-count"><span>6</span> memories remembered</p>
+        <button id="again" class="cta small" type="button"><span>dream again</span></button>
+        <p class="meta">thank you for remembering.</p>
+      </div>
+    </section>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
